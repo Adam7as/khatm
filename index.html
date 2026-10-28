@@ -94,6 +94,13 @@ html[lang="ru"] .jt h3 { font-weight: 600; font-variant-numeric: lining-nums; }
 .jbar i { flex: 1; background: var(--line); position: relative; overflow: hidden; }
 .jbar i::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--w, 0%); background: var(--gold); }
 .jbar { background: none; }
+.jno { display: inline-grid; place-items: center; min-width: 1.5em; height: 1.5em; margin-inline-end: 10px; padding-inline: 4px; border-radius: 6px; background: var(--accent-soft); color: var(--gold); font-size: .85em; line-height: 1; vertical-align: 2px; }
+.list > summary { list-style: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--accent); font-weight: 500; font-size: 14px; padding: 4px 0; }
+.list > summary::-webkit-details-marker { display: none; }
+.list > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.list .chev { transition: transform .2s; }
+.list[open] .chev { transform: rotate(180deg); }
+.list[open] > summary { margin-bottom: 8px; }
 .rubs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 14px; }
 .rub { display: flex; gap: 8px; align-items: baseline; padding: 5px 8px; border-radius: 6px; cursor: pointer; min-width: 0; }
 .rub:hover { background: var(--accent-soft); }
@@ -215,6 +222,7 @@ const T = {
     title: "ختمة القرّاء العشرة",
     lead: "القرآن الكريم كاملًا بالترتيب، ويتناوب على كل ربع قارئ، وبعد العاشر تبدأ الدورة من جديد. لكل قارئ ٢٤ ربعًا، ويختم الشيخ الحذيفي آخر ربع في المصحف.",
     readersTitle: "القرّاء بالترتيب",
+    listToggle: "القرّاء في هذا الجزء",
     mujawwad: "مجوّد",
     juz: j => "الجزء " + ORD[j - 1],
     rub: p => "الربع " + num(p),
@@ -240,6 +248,7 @@ const T = {
     title: "Хатм десяти чтецов",
     lead: "Весь Коран по порядку. Каждый руб‘ (۞, четверть хизба) читает следующий чтец, после десятого круг начинается снова. Каждый чтец читает 24 руб‘а, последний руб‘ Корана читает аль-Хузайфи.",
     readersTitle: "Чтецы по порядку",
+    listToggle: "Кто читает этот джуз",
     mujawwad: "муджаввад",
     juz: j => "Джуз " + j,
     rub: p => "Руб‘ " + p,
@@ -332,9 +341,10 @@ function render() {
     html += `<section class="juz" id="juz${j}">
       <div class="jh">
         <button class="jplay" type="button" data-juz="${j}" aria-label="${t.playJuz(j + 1)}">${ICON_PLAY}</button>
-        <div class="jt"><h3>${t.juz(j + 1)}</h3><span class="sub arx">${names[ps[0] - 1]} ${arNum(ps[1])} – ${names[pe[2] - 1]} ${arNum(pe[3])}</span></div>
+        <div class="jt"><h3>${lang === "ar" ? `<span class="jno">${num(j + 1)}</span>` : ""}${t.juz(j + 1)}</h3><span class="sub arx">${names[ps[0] - 1]} ${arNum(ps[1])} – ${names[pe[2] - 1]} ${arNum(pe[3])}</span></div>
       </div>
       <div class="jbar" id="jb${j}">${"<i></i>".repeat(PER_JUZ)}</div>
+      <details class="list"><summary>${t.listToggle}<svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M4 8l8 8 8-8-1.4-1.4L12 13.2 5.4 6.6z"/></svg></summary>
       <ol class="rubs">`;
     for (let p = first; p <= last; p++) {
       const r = reader(p);
@@ -343,7 +353,7 @@ function render() {
         <span class="rn${lang === "ar" ? " ar" : ""}">${rname(r)}</span>${tag(r)}
         <span class="rr">${rangeText(PARTS[p])}</span></li>`;
     }
-    html += `</ol><div class="jf"><button class="btn" type="button" data-zip="${j}">${ICON_DL}<span>${t.dl}</span></button><span class="status" id="st${j}"></span></div></section>`;
+    html += `</ol></details><div class="jf"><button class="btn" type="button" data-zip="${j}">${ICON_DL}<span>${t.dl}</span></button><span class="status" id="st${j}"></span></div></section>`;
   }
   $("list").innerHTML = html;
   if (resumable) {
